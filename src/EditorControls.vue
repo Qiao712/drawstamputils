@@ -1,6 +1,8 @@
 <template>
     <div class="container" :class="{ 'has-warning': showSecurityWarning }">
       <div class="editor-controls" ref="editorControls">
+        <button @click="randomParams()">随机调整参数</button>
+
         <!-- 印章基本设置 -->
         <div class="control-group">
           <div class="group-header" @click="toggleGroup('basic')">
@@ -1116,6 +1118,66 @@
       }
     });
   })
+
+  // 随机调整参数函数
+  const randomParams = () =>{
+    // ------随机基本设置-----
+    // 颜色
+    const r = Math.floor(Math.random() * 256); // 0-255
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    primaryColor.value = `rgb(${r},${g}, ${b})`
+    // 随机宽高(mm)
+    const max_width = 60
+    const min_width = 30
+    drawStampWidth.value = min_width + Math.floor(Math.random() * (max_width - min_width))
+    drawStampHeight.value = drawStampWidth.value
+
+    // -----随机修改印章中公司名称列表-----
+    companyList.value = [
+      {
+        companyName: '绘制印章xxx有限责任公司',
+        compression: 1,
+        borderOffset: 1,
+        textDistributionFactor: 3,
+        fontFamily: 'SimSun',
+        fontHeight: 4.2,
+        fontWeight: 'normal',
+        shape: 'ellipse',
+        adjustEllipseText: false,
+        adjustEllipseTextFactor: 0.5,
+        startAngle: 0,
+        rotateDirection: "counterclockwise"
+      }
+    ]
+
+    // -----随机印章类型文字-------
+    const stampTypes = ['科研用章', '', '测试用章']
+    stampTypeList.value = [
+      {
+        stampType: stampTypes[Math.floor(Math.random() * stampTypes.length)],
+        fontHeight: 4.6,
+        fontFamily: 'SimSun',
+        compression: 0.75,
+        letterSpacing: 0,
+        positionY: -3,
+        fontWeight: 'normal',
+        lineSpacing: 2,
+        fontWidth: 3
+      }
+    ]
+
+    // -----随机修改底部编码-------
+    const maxNumber = 9999999999
+    const minNumber = 100000
+    stampCode.value = String(Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber)
+    
+    // -------随机中间数字（税号）--------
+    taxNumberValue.value = "xxxx"
+    
+
+    updateDrawConfigs()
+  }
   
   // 监听所有响应式数据的变化
   watch(

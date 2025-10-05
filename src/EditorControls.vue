@@ -592,6 +592,7 @@
   import { ref, onMounted, watch, computed, onUnmounted, nextTick } from 'vue'
   import {DrawStampUtils} from './DrawStampUtils'
   import { getSystemFonts } from './utils/fontUtils'
+  import { getRandonCompanyName, getRandomFont, getRandomValue } from './utils/randomUtils'
   import { ICode, ICompany, IDrawImage, IDrawStampConfig, IDrawStar, IInnerCircle, IRoughEdge, ISecurityPattern, IStampType, ITaxNumber } from './DrawStampTypes'
   import { useI18n } from 'vue-i18n'
   
@@ -989,8 +990,8 @@
     // 更新图片列表
     drawConfigs.imageList = imageList.value
   
-      // 外圈圆形边
-      const outBorder: IInnerCircle = drawConfigs.outBorder
+    // 外圈圆形边
+    const outBorder: IInnerCircle = drawConfigs.outBorder
     outBorder.drawInnerCircle = drawOutBorder.value
     outBorder.innerCircleLineWidth = outBorderLineWidth.value
   
@@ -1136,12 +1137,12 @@
     // -----随机修改印章中公司名称列表-----
     companyList.value = [
       {
-        companyName: '绘制印章xxx有限责任公司',
+        companyName: getRandonCompanyName(),
         compression: 1,
         borderOffset: 1,
         textDistributionFactor: 3,
-        fontFamily: 'SimSun',
-        fontHeight: 4.2,
+        fontFamily: getRandomFont(),
+        fontHeight: getRandomValue(3.5, 5),
         fontWeight: 'normal',
         shape: 'ellipse',
         adjustEllipseText: false,
@@ -1156,11 +1157,11 @@
     stampTypeList.value = [
       {
         stampType: stampTypes[Math.floor(Math.random() * stampTypes.length)],
-        fontHeight: 4.6,
-        fontFamily: 'SimSun',
+        fontHeight: getRandomValue(3.5, 5),
+        fontFamily: getRandomFont(),
         compression: 0.75,
         letterSpacing: 0,
-        positionY: -3,
+        positionY: getRandomValue(-0.5, 3),              // 垂直位置
         fontWeight: 'normal',
         lineSpacing: 2,
         fontWidth: 3
@@ -1168,15 +1169,40 @@
     ]
 
     // -----随机修改底部编码-------
-    const maxNumber = 9999999999
-    const minNumber = 100000
-    stampCode.value = String(Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber)
-    
-    // -------随机中间数字（税号）--------
-    taxNumberValue.value = "xxxx"
+    const maxNumber = 999999999
+    const minNumber = 1000000
+    stampCode.value = String(Math.floor(getRandomValue(minNumber, maxNumber)))
+
+    // ------ 随机显示五角星 或 随机中间数字（税号）-------
+    if(Math.random() < 1.0){
+      shouldDrawStar.value = true
+      taxNumberValue.value = ""
+    }else{
+      // shouldDrawStar.value = false
+      // taxNumberValue.value = String(Math.floor(getRandomValue(minNumber, maxNumber)))
+    }
+
+    // ----- 随机毛边参数 -----
+    roughEdgeHeight.value = getRandomValue(0, 0.50)
+    roughEdgeWidth.value = getRandomValue(0, 0.50)
+    roughEdgeProbability.value = getRandomValue(0, 1.0)
+    roughEdgeShift.value = getRandomValue(0, 10.0)
+    roughEdgePoints.value = Math.floor(getRandomValue(100, 1000))
+
+    // ----- 随机防伪纹路参数 -----
+    securityPatternCount.value = Math.floor(getRandomValue(0, 50))
+    securityPatternLength.value = getRandomValue(0.1, 20)
+    securityPatternWidth.value = getRandomValue(0.05, 0.25)
+
+    // ----- 随机做旧效果参数 ------
+    agingIntensity.value = getRandomValue(0, 50) // 做旧强度%
     
 
+    // 更新配置
     updateDrawConfigs()
+    // 绘制印章(刷新防伪纹路，刷新做旧， 刷新毛边)
+    drawStamp(true, true, true)
+    
   }
   
   // 监听所有响应式数据的变化
@@ -1397,6 +1423,7 @@
 
   // 刷新做旧效果
   const refreshAgingEffect = () => {
+    console.info("refresh aging effect")
     emit('updateDrawStamp', props.drawStampUtils.getDrawConfigs(), false, true, false)
   }
 

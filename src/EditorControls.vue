@@ -1,7 +1,9 @@
 <template>
     <div class="container" :class="{ 'has-warning': showSecurityWarning }">
       <div class="editor-controls" ref="editorControls">
+
         <button @click="randomParams()">随机调整参数</button>
+        <button @click="batchlyRandom()">批量随机</button>
 
         <!-- 印章基本设置 -->
         <div class="control-group">
@@ -1129,7 +1131,7 @@
     const b = Math.floor(Math.random() * 256);
     primaryColor.value = `rgb(${r},${g}, ${b})`
     // 随机宽高(mm)
-    const max_width = 60
+    const max_width = 50
     const min_width = 30
     drawStampWidth.value = min_width + Math.floor(Math.random() * (max_width - min_width))
     drawStampHeight.value = drawStampWidth.value
@@ -1203,6 +1205,25 @@
     // 绘制印章(刷新防伪纹路，刷新做旧， 刷新毛边)
     drawStamp(true, true, true)
     
+  }
+
+  const batchlyRandom = () =>{
+    let i = 0
+    const intervalId = setInterval(()=>{
+      i++
+      console.info(i)
+      
+      randomParams()
+      
+      // 文件名55
+      const filename = companyList.value[0].companyName+'_'+stampCode.value+".png"
+      props.drawStampUtils.saveStampAsPNG(filename)
+
+      // 截至数量
+      if(i == 10000){
+        clearInterval(intervalId)
+      }
+    }, 500);
   }
   
   // 监听所有响应式数据的变化

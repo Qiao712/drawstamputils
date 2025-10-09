@@ -638,7 +638,7 @@ export class DrawStampUtils {
      * 将印章保存为PNG图片
      * @param outputSize 输出图片的尺寸
      */
-    saveStampAsPNG() {
+    saveStampAsPNG(filename='mystamp.png') {
         // 图像与边框的间距
         let imagePadding = 1
         let maxStampSize = Math.max(this.drawStampConfigs.width, this.drawStampConfigs.height)
@@ -698,7 +698,7 @@ export class DrawStampUtils {
             // 创建一个临时的 <a> 元素来触发下载
             const link = document.createElement('a')
             link.href = dataURL
-            link.download = 'mystamp.png'
+            link.download = filename
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
